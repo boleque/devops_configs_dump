@@ -1,6 +1,6 @@
 FROM tomcat:9.0-jdk8
 
-ENV BOXFUSE_HOME /usr/local/tomcat
+ENV BOXFUSE_HOME /usr/local/boxfuse
 RUN mkdir -p "$BOXFUSE_HOME"
 WORKDIR $BOXFUSE_HOME
 
