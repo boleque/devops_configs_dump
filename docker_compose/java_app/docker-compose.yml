@@ -1,0 +1,20 @@
+version: "3.7"
+
+volumes:
+  shared_volume:
+
+services:
+  maven:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    container_name: maven
+    volumes:
+      - "shared_volume:/usr/share/maven/artifacts"
+  tomcat:
+    image: tomcat:9.0-jdk8
+    container_name: tomcat
+    volumes:
+      - "shared_volume:/usr/local/tomcat/webapps"
+    ports:
+      - "8080:8080"
