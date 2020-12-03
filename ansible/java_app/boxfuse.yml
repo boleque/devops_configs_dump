@@ -1,0 +1,36 @@
+---
+- name: builder service provisioning
+  hosts: builder
+  become: yes
+
+  tasks:
+  - name: install maven
+    apt:
+      name: maven
+      state: present
+  - name: clone boxfuse source code
+    git:
+      repo: https://github.com/boxfuse/boxfuse-sample-java-war-hello.git
+      dest: /usr/local/boxfuse
+  - name: compile boxfuse source code
+    shell:
+      cmd: mvn -f /usr/local/boxfuse/pom.xml package
+
+- name: tomcat service provisioning
+  hosts: server
+  become: yes
+
+  tasks:
+  - name: install tomcat
+    apt:
+      name: tomcat9
+      state: present
+  - name: ensure tomcat is started
+    service:
+      name: tomcat9
+      state: started
+  - name: sync artefact with executable dir
+    synchronize:
+      src: /usr/local/boxfuse/target/hello-1.0.war
+      dest: /var/lib/tomcat9/webapps/
+    delegate_to: builder
