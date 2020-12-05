@@ -1,0 +1,4 @@
+---
+# vars file for production
+artifact_path: /usr/local/boxfuse/target
+webapp_path: /var/lib/tomcat9/webapps

@@ -1,0 +1,3 @@
+---
+# vars file for builder
+boxfuse_path: /usr/local/boxfuse
