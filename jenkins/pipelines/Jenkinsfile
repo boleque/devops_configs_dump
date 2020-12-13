@@ -20,7 +20,7 @@ pipeline {
 	
     stage ('deploy') {
         steps {
-            echo 'deploy'
+		sh 'docker build https://github.com/boleque/devops_practice.git#:jenkins/pipelines/ -f Dockerfile.app'
         }
         
     }
