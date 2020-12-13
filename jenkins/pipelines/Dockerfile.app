@@ -1,2 +1,3 @@
 FROM tomcat:9.0-jdk8
+EXPOSE 8081
 COPY . $CATALINA_HOME/webapps/
