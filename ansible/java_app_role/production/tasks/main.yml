@@ -1,0 +1,12 @@
+---
+# tasks file for production
+- name: install tomcat
+  apt:
+    name: tomcat9
+    state: present
+
+- name: sync artefact with executable dir
+  synchronize: src={{artifact_path}}/hello-1.0.war dest={{webapp_path}}
+  delegate_to: builder
+  notify: restart tomcat
+

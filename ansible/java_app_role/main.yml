@@ -1,0 +1,12 @@
+---
+- name: build provisioning
+  hosts: builder
+  become: yes
+  roles:
+    - build
+
+- name: tomcat provisioning
+  hosts: tomcat
+  become: yes
+  roles:
+    - production

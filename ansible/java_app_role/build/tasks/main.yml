@@ -1,0 +1,15 @@
+---
+# tasks file for builder
+- name: install maven and git
+  apt: name={{item}} state=present
+  with_items:
+    - maven
+    - git
+
+- name: clone boxfuse source code
+  git:
+    repo="https://github.com/boxfuse/boxfuse-sample-java-war-hello.git" dest={{boxfuse_path}}
+  
+- name: compile boxfuse source code
+  shell:
+    cmd: mvn -f {{boxfuse_path}}/pom.xml package
