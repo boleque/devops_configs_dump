@@ -1,0 +1,28 @@
+pipeline {
+  agent {
+     docker {
+       image 'environ:1.0.0'
+       }
+  }
+  
+  stages {
+      stage ('clone src code') {
+          steps {
+              git 'https://github.com/boleque/boxfuse-sample.git'
+          }
+      }
+	
+	stage ('build app') {
+	    steps {
+	        sh 'mvn package'
+	    }
+	}
+	
+    stage ('deploy') {
+        steps {
+            echo 'deploy'
+        }
+        
+    }
+  }
+}
