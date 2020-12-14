@@ -12,15 +12,16 @@ pipeline {
           }
       }
 	
-	stage ('build app') {
-	    steps {
-	        sh 'mvn package'
-	    }
-	}
-	
+	stage ('create Dockerfile for app deploy') {
+          steps {
+              sh 'echo "FROM tomcat:9.0-jdk8\nRUN rm -rf $CATALINA_HOME/webapps/\nCOPY target/ $CATALINA_HOME/webapps/" > Dockerfile'
+          }
+      }
+      
     stage ('deploy') {
         steps {
-		sh 'docker build https://github.com/boleque/devops_practice.git#:jenkins/pipelines/ -f Dockerfile.app'
+            echo 'deploy'
+            sh 'docker build -t boxfuse:1.0.0 .'
         }
         
     }
