@@ -1,3 +1,3 @@
 FROM tomcat:9.0-jdk8
 EXPOSE 8081
-COPY hello-1.0.war $CATALINA_HOME/webapps/ #todo copy doesn't work because of context issue
+COPY /var/jenkins_home/workspace/boxfuse_pipeline/target/hello-1.0.war $CATALINA_HOME/webapps/ #todo copy doesn't work because of context issue
