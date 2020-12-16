@@ -1,0 +1,36 @@
+pipeline {
+	agent {
+		docker {
+			image 'environ:1.0.0'
+		}
+	}
+	stages {
+		stage ('clone src code') {
+			steps {
+				git 'https://github.com/boleque/boxfuse-sample.git'
+			}
+		}
+		stage ('build artifact') {
+			steps {
+				sh 'mvn package'
+			}
+		}
+		stage ('create intermediate dockerfile') {
+			steps {
+				sh 'echo "FROM tomcat:9.0-jdk8\nRUN rm -rf $CATALINA_HOME/webapps/\nCOPY . $CATALINA_HOME/webapps/" > Dockerfile'
+			}
+		}
+		stage ('build image'){
+			steps{
+				sh 'docker build -t $(image_name) . && docker tag $(image_name) $(repository_ip)/$(image_name)'
+				sh 'docker login $(repository_ip) --username admin --password admin && docker push $(repository_ip)/$(image_name)'
+			}
+		}
+		stage('deploy') {
+			steps {
+				sh 'ls -a /root/.ssh/ && ssh-copy-id -i /root/.ssh/id_rsa -f $(production)'
+				sh 'ssh $(production) docker pull $(repository_ip)/$(image_name) && docker run -d -p 8080:8080 $(repository_ip)/$(image_name)'
+			}
+		}
+	}
+}
