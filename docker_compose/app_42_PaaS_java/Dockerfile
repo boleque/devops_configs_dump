@@ -2,20 +2,14 @@ FROM maven:3.6.0-jdk-11-slim AS build
 
 RUN apt update && apt install git -y
 
-ENV APP_SRC_DEST /usr/local/app24
-RUN mkdir -p "$APP_SRC_DEST"
-WORKDIR $APP_SRC_DEST
-
-ARG APP="App42PaaS-Java-MySQL-Sample"
-
-RUN git clone https://github.com/boleque/${APP}.git
-
-WORKDIR ${APP}/
-RUN mvn package && pwd && ls -a
-
 WORKDIR $MAVEN_HOME
-RUN mkdir artifacts/
+RUN git clone https://github.com/boleque/App42PaaS-Java-MySQL-Sample.git
 
-VOLUME /$MAVEN_HOME/artifacts
+RUN mvn package -f App42PaaS-Java-MySQL-Sample/
 
-RUN cp $APP_SRC_DEST/${APP}/target/*.war $MAVEN_HOME/artifacts && ls -a $MAVEN_HOME/artifacts
+RUN mkdir artifacts/ && pwd
+VOLUME /artifacts/
+
+ENTRYPOINT cp App42PaaS-Java-MySQL-Sample/target/App42PaaS-Java-MySQL-Sample-0.0.1-SNAPSHOT.war \
+        artifacts/App42PaaS-Java-MySQL-Sample-0.0.1-SNAPSHOT.war
+

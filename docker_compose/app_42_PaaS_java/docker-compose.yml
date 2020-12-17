@@ -1,0 +1,38 @@
+version: "2.0"
+
+volumes:
+  shared_volume:
+
+services:
+  maven:
+    build:
+      context: ./
+    volumes:
+      - "shared_volume:/usr/share/maven/artifacts"
+  tomcat:
+    image: tomcat:9.0-jdk8
+    container_name: tomcat
+    volumes:
+      - "shared_volume:/usr/local/tomcat/webapps"
+    ports:
+      - "8085:8080"
+    links:
+      - db
+    container_name: web-server
+  db:
+    image: mysql:5.7
+    command: mysqld --default-authentication-plugin=mysql_native_password
+    volumes:
+      - ./mysql_dump:/var/lib/mysql
+    environment:
+      MYSQL_USER: acp4pogynvaeidfj
+      MYSQL_PASSWORD: jc31d2qyy7h9jv5jn1u9uosjksxzaizw
+      MYSQL_ROOT_PASSWORD: root_passwd
+      MYSQL_DATABASE: dd
+    container_name: mysql_db
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8090:8080
+    container_name: adminer
