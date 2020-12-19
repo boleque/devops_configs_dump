@@ -1,0 +1,73 @@
+---
+- name: localhost provisioning
+  hosts: 127.0.0.1
+  connection: local
+  become: yes
+  tasks:
+    - name: create aws security group
+      amazon.aws.ec2_group2:
+        name: Ec2SecurityGroup1
+        description: ec2 security groups for build and production servers
+        rules:
+          - proto: tcp
+            ports:
+            - 22
+            cidr_ip: 0.0.0.0/0
+            rule_desc: allow all on port 22
+    - name: create ec2 instances
+      ec2:
+        instance_type: t2.micro
+        key_name: my_key
+        image: ami-0ebc8f6f580a04647
+        count: 2
+        vps_subnet_id: subnet-5fda0334
+        group: Ec2SecurityGroup1
+        region: us-east-2
+        assign_public_ip: yes
+      register: ec2
+    - name: add host to builder
+      add_host:
+        name: "{{ ec2.instances[0].public_ip }}"
+        groups: builder
+    - name: add host to production
+      add_host:
+        name: "{{ ec2.instances[1].public_ip }}"
+        groups: production
+
+- name: builder provisioning
+  hosts: builder
+  become: yes
+  tasks:
+  - name: ensure git is present
+    apt:
+      name: git
+      state: present
+  - name: ensure maven is present
+    apt:
+      name: maven
+      state: present
+  - name: clone boxfuse source code
+    git:
+      repo: https://github.com/boxfuse/boxfuse-sample-java-war-hello.git
+      dest: /usr/local/boxfuse
+  - name: compile boxfuse source code
+    shell:
+      cmd: mvn -f /usr/local/boxfuse/pom.xml package
+
+- name: production provisioning
+  hosts: production
+  become: yes
+  tasks:
+  - name: install tomcat
+    apt:
+      name: tomcat9
+      state: present
+  - name: ensure tomcat is started
+    service:
+      name: tomcat9
+      state: started
+  - name: sync artefact with executable dir
+    synchronize:
+      src: /usr/local/boxfuse/target/hello-1.0.war
+      dest: /var/lib/tomcat9/webapps/
+    delegate_to: builder
