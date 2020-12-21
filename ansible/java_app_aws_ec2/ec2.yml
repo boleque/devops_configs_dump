@@ -56,6 +56,21 @@
         - git
         - default-jdk
         - maven
+        - python3
+        - python3-pip
+  - name: ensure boto3 is present
+    shell:
+      cmd: pip3 install boto3
+  - name: Set AWS KEY ID
+    set_fact: aws_key_id="{{ lookup('env','AWS_ACCESS_KEY_ID') }}"
+    delegate_to: localhost
+  - name: Set AWS SECRET
+    set_fact: aws_secret_key="{{ lookup('env','AWS_SECRET_ACCESS_KEY') }}"
+    delegate_to: localhost
+  - name: Get AWS KEY ID
+    set_fact: aws_key_id={{hostvars[inventory_hostname]['aws_key_id']}}
+  - name: Get AWS SECRET KEY
+    set_fact: aws_secret_key={{hostvars[inventory_hostname]['aws_secret_key']}}
   - name: ensure boxfuse source code is cloned
     git:
       repo: https://github.com/boxfuse/boxfuse-sample-java-war-hello.git
@@ -63,33 +78,58 @@
   - name: ensure boxfuse source code is compiled
     shell:
       cmd: mvn -f /usr/local/boxfuse/pom.xml package
-  - name: sync artifact
+  - name: debug credentials
+    debug:
+      msg: "{{aws_secret_key}}"
+  - name: debug credentials
+    debug:
+      msg: "{{aws_key_id}}"
+  - name: sync artifact with s3 repo
     amazon.aws.aws_s3:
+      aws_access_key: "{{aws_key_id}}"
+      aws_secret_key: "{{aws_secret_key}}"
       bucket: backet.boleque.com
       object: ./artifacts/hello-1.0.war
       src: /usr/local/boxfuse/target/hello-1.0.war
       mode: put
-    delegate_to: localhost
 
 - name: production provisioning
   hosts: production
   remote_user: ubuntu
   become: yes
   tasks:
-  - name: ensure tomcat8 is present
+  - name: ensure required packages are exist
     apt:
       update_cache: yes
-      name: tomcat8
+      name: "{{ packages }}"
       state: present
+    vars:
+      packages:
+        - tomcat8
+        - python3
+        - python3-pip
+  - name: ensure boto3 is present
+    shell:
+      cmd: pip3 install boto3
+  - name: Set AWS KEY ID
+    set_fact: aws_key_id="{{ lookup('env','AWS_ACCESS_KEY_ID') }}"
+    delegate_to: localhost
+  - name: Set AWS SECRET
+    set_fact: aws_secret_key="{{ lookup('env','AWS_SECRET_ACCESS_KEY') }}"
+    delegate_to: localhost
+  - name: Get AWS KEY ID
+    set_fact: aws_key_id={{hostvars[inventory_hostname]['aws_key_id']}}
+  - name: Get AWS SECRET KEY
+    set_fact: aws_secret_key={{hostvars[inventory_hostname]['aws_secret_key']}}
   - name: ensure tomcat is started
     service:
       name: tomcat8
       state: started
   - name: sync artifact
     amazon.aws.aws_s3:
+      aws_access_key: "{{aws_key_id}}"
+      aws_secret_key: "{{aws_secret_key}}"
       bucket: backet.boleque.com
       object: ./artifacts/hello-1.0.war
-      dest: /var/lib/tomcat9/webapps/hello-1.0.war
+      dest: /var/lib/tomcat/webapps/hello-1.0.war
       mode: get
-    delegate_to: localhost
-
