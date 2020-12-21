@@ -84,7 +84,7 @@
   - name: debug credentials
     debug:
       msg: "{{aws_key_id}}"
-  - name: sync artifact with s3 repo
+  - name: put artifact to s3 repo
     amazon.aws.aws_s3:
       aws_access_key: "{{aws_key_id}}"
       aws_secret_key: "{{aws_secret_key}}"
@@ -125,7 +125,7 @@
     service:
       name: tomcat8
       state: started
-  - name: sync artifact
+  - name: get artifact from s3 repo
     amazon.aws.aws_s3:
       aws_access_key: "{{aws_key_id}}"
       aws_secret_key: "{{aws_secret_key}}"
