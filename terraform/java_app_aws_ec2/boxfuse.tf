@@ -11,6 +11,7 @@ resource "aws_instance" "builder" {
   tags = {
     Name = "builder"
 }
+
   user_data = <<-EOF
               #!/bin/bash
               sudo apt-get update
