@@ -29,7 +29,6 @@ resource "aws_instance" "production" {
   key_name      = "bf2"
   vpc_security_group_ids = [aws_security_group.instance.id]
 
-
   tags = {
     Name = "production"
 }
