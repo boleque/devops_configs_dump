@@ -45,7 +45,7 @@ resource "aws_instance" "production" {
 }
 
 resource "aws_security_group" "instance" {
-  name = "terraform-example-instance1"
+  name = "custom_group"
 
     ingress {
         from_port = 22
