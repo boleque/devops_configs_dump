@@ -6,7 +6,7 @@ resource "aws_instance" "builder" {
   ami = "ami-0a91cd140a1fc148a"
   instance_type = "t2.micro"
   key_name      = "bf2"
-  vpc_security_group_ids = [aws_security_group.instance.id]
+  vpc_security_group_ids = [aws_security_group.custom_group.id]
   
   tags = {
     Name = "builder"
@@ -27,7 +27,7 @@ resource "aws_instance" "production" {
   ami = "ami-0a91cd140a1fc148a"
   instance_type = "t2.micro"
   key_name      = "bf2"
-  vpc_security_group_ids = [aws_security_group.instance.id]
+  vpc_security_group_ids = [aws_security_group.custom_group.id]
 
   tags = {
     Name = "production"
@@ -44,7 +44,7 @@ resource "aws_instance" "production" {
               EOF
 }
 
-resource "aws_security_group" "instance" {
+resource "aws_security_group" "custom_group" {
   name = "custom_group"
 
     ingress {
